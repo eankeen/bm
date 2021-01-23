@@ -1,4 +1,4 @@
-installl() {
+function pkg_install() {
 	name="terraform"
 	version="0.13.5"
 
@@ -45,5 +45,5 @@ EOF
 	gpg --verify "${name}_${version}_SHA256SUMS.sig" "${name}_${version}_SHA256SUMS"
 	shasum -a 256 --ignore-missing -c "${name}_${version}_SHA256SUMS"
 
-	placeBin "$name" "$version"
+	place_bin "$name" "$version"
 }

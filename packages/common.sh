@@ -10,18 +10,23 @@ get() {
 }
 
 # when called, we're in context of temporary folder
-placeBin() {
-	: ${1:?"Error: placeBin: First arg not found"}
-	: ${2:?"Error: placeBin: Second arg not found"}
+place_bin() {
+	: ${1:?"Interface Error: place_bin: First arg (binName) not found"}
+	: ${2:?"Interface Error: place_bin: Second arg (version) not found"}
 
-	binName="$1"
-	version="$2"
+	local -r binName="$1"
+	local -r version="$2"
 
-	echo "placeBin: $binName: Copying $version"
+	log_info "Info: place_bin: $binName: Copying $version"
 	cp "$binName" "$BM_DATA/bin"
 }
 
 # when called, we're in context of temporary folder
-placeMan() {
-	echo "Error: Not Implemented"
+place_man() {
+	log_error "Error: Not Implemented"
+}
+
+# when called, we're in context of temporary folder
+place_source() {
+	log_error "Error: Not implemented"
 }
