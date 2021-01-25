@@ -38,7 +38,7 @@ bm_integrity() {
 	: "${1:?"Interface Error: bm_integrity: shasum reference file not passed"}"
 	debug "bm_integrity: \$1: $1"
 
-	shasum -a 256 --ignore-missing -c "$1" || bm_die "Checksum verification failed"
+	shasum -a 256 --ignore-missing -c "$1" >/dev/null || bm_die "Checksum verification failed"
 }
 
 bm_identity() {
@@ -55,6 +55,11 @@ bm_place_bin() {
 
 	log_info "Installing $1 v$2"
 	cp "$1" "$BM_DATA/bin" || bm_die "Copy failed"
+}
+
+bm_place_man() {
+	: "${1:?"Interface Error: bm_place_bin: Binary name not found"}"
+	: "${2:?"Interface Error: bm_place_bin: Version not found"}"
 }
 
 # util

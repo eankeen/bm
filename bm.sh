@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
-set -uo pipefail
+set -Euo pipefail
 set +u
 
 BM_SRC="$(dirname "$(readlink -f "$0")")"
 
 source "$BM_SRC/util.sh"
 
-[[ -z ${BM_DATA:-''} ]] && BM_DATA="${XDG_DATA_HOME:-$HOME/.local/share}/bm"
+# [[ -z ${BM_DATA:-''} ]] && BM_DATA="${XDG_DATA_HOME:-$HOME/.local/share}/bm"
+
+: "${BM_DATA:="${XDG_DATA_HOME:-$HOME/.local/share}/bm"}"
 
 mkdir -p "$BM_DATA"
 mkdir -p "$BM_DATA/bin"
@@ -55,11 +57,6 @@ main() {
 			echo "  identity: $identity_check"
 			:
 		done
-		# find "$BM_SRC"/packages \
-		# 	-mindepth 1 \
-		# 	-maxdepth 1 \
-		# 	-type d \
-		# 	-exec basename {} \;
 		;;
 	list2)
 		ls "$XDG_DATA_HOME"/bm/bin | cat
