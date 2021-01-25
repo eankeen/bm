@@ -23,7 +23,7 @@ _bm() {
 	local i=1 cmd
 
 	# iterate over COMP_WORDS (ending at currently completed word)
-	# this ensures we get command completion even after passing flags
+	# this ensures we bm_get command completion even after passing flags
 	while [[ "$i" -lt "$COMP_CWORD" ]]; do
 		local s="${COMP_WORDS[i]}"
 		case "$s" in

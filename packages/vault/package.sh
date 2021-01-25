@@ -1,14 +1,19 @@
-function pkg_install() {
-	name="vault"
-	version="1.6.0"
+# shellcheck shell=bash
 
-	get "https://releases.hashicorp.com/$name/$version/${name}_${version}_linux_amd64.zip"
-	unzip "${name}_${version}_linux_amd64.zip"
+name="vault"
+version="1.6.0"
+integrity_check="yes"
+identity_check="yes"
 
-	get "https://releases.hashicorp.com/$name/$version/${name}_${version}_SHA256SUMS"
-	get "https://releases.hashicorp.com/$name/$version/${name}_${version}_SHA256SUMS.sig"
+pkg_install() {
+	bm_get "https://releases.hashicorp.com/$name/$version/${name}_${version}_linux_amd64.zip"
+	bm_extract "${name}_${version}_linux_amd64.zip"
 
+	# integrity
+	bm_get "https://releases.hashicorp.com/$name/$version/${name}_${version}_SHA256SUMS"
+	bm_integrity "${name}_${version}_SHA256SUMS"
 
+	# final
 	cat <<EOF > hashicorp.asc
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 
@@ -41,9 +46,10 @@ qHV5VVCoEIoYVHIuFIyFu1lIcei53VD6V690rmn0bp4A5hs+kErhThvkok3c
 =+mCN
 -----END PGP PUBLIC KEY BLOCK-----
 EOF
+	bm_get "https://releases.hashicorp.com/$name/$version/${name}_${version}_SHA256SUMS.sig"
 	gpg --import hashicorp.asc
 	gpg --verify "${name}_${version}_SHA256SUMS.sig" "${name}_${version}_SHA256SUMS"
-	shasum -a 256 --ignore-missing -c "${name}_${version}_SHA256SUMS"
 
-	place_bin "$name" "$version"
+	# final
+	bm_place_bin "$name" "$version"
 }

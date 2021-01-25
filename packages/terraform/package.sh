@@ -1,14 +1,23 @@
-function pkg_install() {
-	name="terraform"
-	version="0.13.5"
+# shellcheck shell=bash
 
-	get "https://releases.hashicorp.com/$name/$version/${name}_${version}_linux_amd64.zip"
-	unzip "${name}_${version}_linux_amd64.zip"
+name="terraform"
+version="0.13.5"
+integrity_check="yes"
+identity_check="yes"
 
-	get "https://releases.hashicorp.com/$name/$version/${name}_${version}_SHA256SUMS"
-	get "https://releases.hashicorp.com/$name/$version/${name}_${version}_SHA256SUMS.sig"
+pkg_install() {
+	# extract
+	bm_get "https://releases.hashicorp.com/$name/$version/${name}_${version}_linux_amd64.zip"
+	bm_extract "${name}_${version}_linux_amd64.zip"
 
+	# integrity
+	bm_get "https://releases.hashicorp.com/$name/$version/${name}_${version}_SHA256SUMS"
+		shasum -a 256 --ignore-missing -c "${name}_${version}_SHA256SUMS"
 
+	# identity
+	bm_get "https://releases.hashicorp.com/$name/$version/${name}_${version}_SHA256SUMS.sig"
+
+	# ingegrity
 	cat <<EOF > hashicorp.asc
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 
@@ -43,7 +52,7 @@ qHV5VVCoEIoYVHIuFIyFu1lIcei53VD6V690rmn0bp4A5hs+kErhThvkok3c
 EOF
 	gpg --import hashicorp.asc
 	gpg --verify "${name}_${version}_SHA256SUMS.sig" "${name}_${version}_SHA256SUMS"
-	shasum -a 256 --ignore-missing -c "${name}_${version}_SHA256SUMS"
 
-	place_bin "$name" "$version"
+	# final
+	bm_place_bin "$name" "$version"
 }

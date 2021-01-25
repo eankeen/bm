@@ -1,32 +1,64 @@
-#!/usr/bin/env sh
+# shellcheck shell=bash
 
-get() {
+# steps
+# when called, we're in context of temporary folder
+bm_get() {
+	: "${1:?"Interface Error: bm_get: URL to fetch from not passed"}"
+	debug "bm_get: \$1: $1"
+
 	if [[ -v DEBUG ]]; then
-		curl --proto '=https' --tlsv1.2 -LfO "$@"
-		return
+		curl --proto '=https' --tlsv1.2 -LfO "$1" || bm_die "Fetch failed"
+	else
+		curl --proto '=https' --tlsv1.2 -sSLfO "$1" || bm_die "Fetch failed"
 	fi
-
-	curl --proto '=https' --tlsv1.2 -sSLfO "$@"
 }
 
-# when called, we're in context of temporary folder
-place_bin() {
-	: ${1:?"Interface Error: place_bin: First arg (binName) not found"}
-	: ${2:?"Interface Error: place_bin: Second arg (version) not found"}
+bm_get_gh() {
+	: "${1:?"Interface Error: bm_get_gh: Repository to fetch from not passed"}"
+	: "${2:?"Interface Error: bm_get_gh: File to fetch not specified"}"
+	debug "bm_get_gh: \$1: $1"
+	debug "bm_get_gh: \$2: $2"
 
-	local -r binName="$1"
-	local -r version="$2"
-
-	log_info "Info: place_bin: $binName: Copying $version"
-	cp "$binName" "$BM_DATA/bin"
+	bm_get "https://github.com/$1/releases/download/$2"
 }
 
-# when called, we're in context of temporary folder
-place_man() {
-	log_error "Error: Not Implemented"
+bm_extract() {
+	: "${1:?"Interface Error: bm_extract: file to extract not passed"}"
+	debug "bm_extract: \$1: $1"
+
+	case "$1" in
+	*.zip)
+		unzip "$1" || bm_die "Extraction (zip) failed" ;;
+	*)
+		tar xaf "$1" || bm_die "Extraction (tar) failed" ;;
+	esac
 }
 
-# when called, we're in context of temporary folder
-place_source() {
-	log_error "Error: Not implemented"
+bm_integrity() {
+	: "${1:?"Interface Error: bm_integrity: shasum reference file not passed"}"
+	debug "bm_integrity: \$1: $1"
+
+	shasum -a 256 --ignore-missing -c "$1" || bm_die "Checksum verification failed"
+}
+
+bm_identity() {
+	# gpg --import hashicorp.asc
+	# gpg --verify "${name}_${version}_SHA256SUMS.sig" "${name}_${version}_SHA256SUMS"
+	:
+}
+
+bm_place_bin() {
+	: "${1:?"Interface Error: bm_place_bin: Binary name not found"}"
+	: "${2:?"Interface Error: bm_place_bin: Version not found"}"
+	debug "bm_get_gh: \$1: $1"
+	debug "bm_get_gh: \$2: $2"
+
+	log_info "Installing $1 v$2"
+	cp "$1" "$BM_DATA/bin" || bm_die "Copy failed"
+}
+
+# util
+bm_die() {
+	log_error "$*. Exiting"
+	exit 1
 }

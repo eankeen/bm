@@ -1,9 +1,19 @@
-function pkg_install() {
-	local -r name="caddy"
-	local -r version="2.2.1"
+# shellcheck shell=bash
 
-	get https://github.com/caddyserver/caddy/releases/download/v$version/caddy_${version}_linux_amd64.tar.gz
-	tar xf caddy_${version}_linux_amd64.tar.gz
+name="caddy"
+version="2.2.1"
+integrity_check="yes"
+identity_check="no"
 
-	place_bin "$name" "$version"
+pkg_install() {
+	# extract
+	bm_get_gh "caddyserver/caddy" "v$version/caddy_${version}_linux_amd64.tar.gz"
+	bm_extract "caddy_${version}_linux_amd64.tar.gz"
+
+	# integrity
+	bm_get_gh "caddyserver/caddy" "v$version/caddy_${version}_checksums.txt"
+	bm_integrity "caddy_${version}_checksums.txt"
+
+	# final
+	bm_place_bin "$name" "$version"
 }

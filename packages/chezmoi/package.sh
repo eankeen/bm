@@ -1,15 +1,20 @@
-# broken
-function pkg_install() {
-	name="chezmoi"
-	version=""
+# shellcheck shell=bash
 
-        #get "https://github.com/cli/cli/releases/download/v1.4.0/gh_${version}_linux_amd64.tar.gz"
-	#tar xaf gh_${version}_linux-amd64.tar.gz
-	#chmod +x "$name"
+name="chezmoi"
+version="1.8.10"
+integrity_check="yes"
+identity_check="no"
 
-	place_bin "$name" "$version"
-}
+pkg_install() {
+	# extract
+	bm_get_gh "twpayne/chezmoi" "v$version/chezmoi_${version}_linux_amd64.tar.gz"
+	bm_extract "chezmoi_${version}_linux_amd64.tar.gz"
+	chmod +x "$name"
 
-function pkg_init() {
-        eval "$(chezmoi completion bash)"
+	# integrity
+	bm_get_gh "twpayne/chezmoi" "v$version/chezmoi_${version}_checksums.txt"
+	bm_integrity "chezmoi_${version}_checksums.txt"
+
+	# final
+	bm_place_bin "$name" "$version"
 }

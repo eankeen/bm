@@ -6,11 +6,11 @@ Many tools are provided as single binaries. Using system package managers to ins
 
 ## Features
 
-- [x] Installs packages
-- [ ] Manages package side effects
-- [ ] Lists packages
-- [ ] Lists versions of packages
-- [ ] Switch package versions
+-  [x] Installs packages
+-  [x] Manages package side effects
+-  [x] Lists packages
+-  [ ] Lists versions of packages
+-  [ ] Switch package versions
 
 Right now, it simply installes packages. Later, it should facilitate tool version discovery and installation version priority management of aforementioned packages
 

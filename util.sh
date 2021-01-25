@@ -9,7 +9,7 @@ function log_error() {
 }
 
 function debug() {
-	if [[ -v DEBUG ]]; then echo "$@"; fi
+	if [[ -v DEBUG ]]; then echo "$*"; fi
 }
 
 function show_help() {

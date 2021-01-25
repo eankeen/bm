@@ -1,15 +1,16 @@
-function pkg_install() {
-	# TODO: pgp, shasum
-	name="pack"
-	version="0.15.1"
-	
-	get https://github.com/buildpacks/pack/releases/download/v$version/pack-v$version-linux.tgz
-	tar xaf pack-v$version-linux.tgz
+# shellcheck shell=bash
+
+name="pack"
+version="0.15.1"
+integrity_check="no"
+identity_check="no"
+
+pkg_install() {
+	# extract
+	bm_get_gh "buildpacks/pack" "v$version/pack-v$version-linux.tgz"
+	bm_extract "pack-v$version-linux.tgz"
 	chmod +x "$name"
 
-	place_bin "$name" "$version"
-}
-
-pkg_init() {
-        source "$(pack completion)"
+	# final
+	bm_place_bin "$name" "$version"
 }

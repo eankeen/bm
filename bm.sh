@@ -1,21 +1,12 @@
 #!/usr/bin/env bash
 set -uo pipefail
+set +u
 
-# TODO: remove BM_SRC
+BM_SRC="$(dirname "$(readlink -f "$0")")"
 
-# shellcheck source=/dev/null
 source "$BM_SRC/util.sh"
 
 [[ -z ${BM_DATA:-''} ]] && BM_DATA="${XDG_DATA_HOME:-$HOME/.local/share}/bm"
-[[ -z ${BM_SRC:-''} ]] && {
-	echo "Error: Must set '\$BM_SRC'"
-	exit 1
-}
-
-[[ -d $BM_SRC ]] || {
-	echo "Error: '\$BM_SRC' must be a directory"
-	exit 1
-}
 
 mkdir -p "$BM_DATA"
 mkdir -p "$BM_DATA/bin"
@@ -35,7 +26,6 @@ main() {
 		: "${2:?"Error: Second arg (package) not found"}"
 		local -r package="$2"
 
-		# shellcheck source=/dev/null
 		source "$BM_SRC/packages/common.sh"
 		do_install "$package"
 		;;
@@ -46,10 +36,33 @@ main() {
 		rm "$BM_DATA/bin/$package"
 		;;
 	list)
-		# TODO: fix shouldn't show files
-		for folder in "$BM_SRC"/packages/*; do
-			echo "${folder##*/}"
+		local -a pkgs=()
+		for dir in "$BM_SRC"/packages/*/; do
+			# dir="${dir##*/}"
+			dir="$(basename "$dir")"
+			pkgs+=("$dir")
 		done
+
+		for pkg in "${pkgs[@]}"; do
+			name="?"
+			version="?"
+			integrity_check="?"
+			identity_check="?"
+			source "$BM_SRC/packages/$pkg/package.sh"
+			echo "name: $name"
+			echo "  version: $version"
+			echo "  integrity: $integrity_check"
+			echo "  identity: $identity_check"
+			:
+		done
+		# find "$BM_SRC"/packages \
+		# 	-mindepth 1 \
+		# 	-maxdepth 1 \
+		# 	-type d \
+		# 	-exec basename {} \;
+		;;
+	list2)
+		ls "$XDG_DATA_HOME"/bm/bin | cat
 		;;
 	*)
 		log_error "No matching subcommand found. Exiting"

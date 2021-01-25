@@ -1,11 +1,20 @@
-# broken
-function pkg_install() {
-	name="gh"
-	version="1.4.0"
+# shellcheck shell=bash
 
-        get "https://github.com/cli/cli/releases/download/v1.4.0/gh_${version}_linux_amd64.tar.gz"
-	tar xaf gh_${version}_linux-amd64.tar.gz
+name="gh"
+version="1.4.0"
+integrity_check="yes"
+identity_check="no"
+
+pkg_install() {
+	# extract
+	bm_get_gh "cli/cli" "v$version/gh_${version}_linux_amd64.tar.gz"
+	bm_extract gh_${version}_linux-amd64.tar.gz
 	chmod +x "$name"
 
-	place_bin "$name" "$version"
+	# integrity
+	bm_get_gh "cli/cli" "v$version/gh_${version}_checksums.txt"
+	bm_integrity "gh_${version}_checksums.txt"
+
+	# final
+	bm_place_bin "$name" "$version"
 }
