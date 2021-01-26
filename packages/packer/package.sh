@@ -12,7 +12,7 @@ pkg_install() {
 
 	# integrity
 	bm_get "https://releases.hashicorp.com/$name/$version/${name}_${version}_SHA256SUMS"
-	shasum -a 256 --ignore-missing -c "${name}_${version}_SHA256SUMS"
+	bm_integrity "${name}_${version}_SHA256SUMS"
 
 
 	# identity

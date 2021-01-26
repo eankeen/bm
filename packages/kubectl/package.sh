@@ -12,7 +12,7 @@ pkg_install() {
 
 	# integrity
 	bm_get "https://dl.k8s.io/v$version/bin/linux/amd64/kubectl.sha256"
-	bm_integrity "kubectl.sha256"
+	bm_integrity <(echo "$(< kubectl.sha256)  kubectl")
 
 	# final
 	bm_place_bin "$name" "$version"

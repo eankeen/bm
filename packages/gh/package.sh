@@ -20,5 +20,5 @@ pkg_install() {
 	bm_place_bin "$name/bin/gh" "$version"
 	for file in "$name"/man/man1/*; do
 		bm_place_man "$file" "$version"
-	done;
+	done
 }

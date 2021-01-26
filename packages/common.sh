@@ -53,7 +53,6 @@ bm_place_bin() {
 	debug "bm_get_gh: \$1: $1"
 	debug "bm_get_gh: \$2: $2"
 
-	log_info "Installing $1 v$2"
 	cp "$1" "$BM_DATA/bin" || bm_die "Copy failed"
 }
 

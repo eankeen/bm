@@ -81,6 +81,8 @@ do_install() {
 	}
 
 	# install
+	log_info "Installing $1"
+
 	pushd "$(mktemp -d)" &>/dev/null
 
 	debug "doInstall: tempFolder: $PWD"

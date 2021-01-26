@@ -30,12 +30,15 @@ teardown() {
 	rm -rf "$subTemp"
 }
 
-@test "test caddy installation" {
-	"$bm" install caddy >&3 2>&3
-	[ -e "$BM_DATA/bin/caddy" ]
-}
 
 @test "test all extract properly and have their executable placed" {
+	[[ -n $PKG ]] && {
+		debug_echo "# ON: '$PKG'"
+		"$bm" install "$PKG"
+		[ -e "$BM_DATA/bin/$PKG" ]
+		return
+	}
+
 	for pkg in "$pwd"/packages/*/; do
 		pkg="${pkg::-1}"
 		pkg="${pkg##*/}"
@@ -47,6 +50,6 @@ teardown() {
 }
 
 signal_clean() {
-	rm -rf mainTemp
+	rm -rf "$mainTemp"
 }
-trap signal_clean SIGINT
+trap signal_clean EXIT ERR
