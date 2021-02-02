@@ -1,5 +1,11 @@
 # shellcheck shell=bash
 
+# util
+bm_die() {
+	log_error "$*. Exiting"
+	exit 1
+}
+
 # steps
 # when called, we're in context of temporary folder
 bm_get() {
@@ -47,6 +53,7 @@ bm_identity() {
 	:
 }
 
+# place
 bm_place_bin() {
 	: "${1:?"Interface Error: bm_place_bin: Binary name not found"}"
 	: "${2:?"Interface Error: bm_place_bin: Version not found"}"
@@ -59,10 +66,4 @@ bm_place_bin() {
 bm_place_man() {
 	: "${1:?"Interface Error: bm_place_bin: Binary name not found"}"
 	: "${2:?"Interface Error: bm_place_bin: Version not found"}"
-}
-
-# util
-bm_die() {
-	log_error "$*. Exiting"
-	exit 1
 }

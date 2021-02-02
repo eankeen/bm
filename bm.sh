@@ -1,18 +1,17 @@
 #!/usr/bin/env bash
-set -Euo pipefail
-set +u
+set -Eo pipefail
 
 BM_SRC="$(dirname "$(readlink -f "$0")")"
 
 source "$BM_SRC/util.sh"
-
-# [[ -z ${BM_DATA:-''} ]] && BM_DATA="${XDG_DATA_HOME:-$HOME/.local/share}/bm"
+source "$BM_SRC/helper.sh"
+source "$BM_SRC/db.sh"
 
 : "${BM_DATA:="${XDG_DATA_HOME:-$HOME/.local/share}/bm"}"
 
-mkdir -p "$BM_DATA"
 mkdir -p "$BM_DATA/bin"
 mkdir -p "$BM_DATA/man"
+touch "$BM_DATA/db.txt"
 
 main() {
 	[[ $* =~ --help ]] && {
@@ -20,28 +19,43 @@ main() {
 		exit
 	}
 
-	: "${1:?"Error: First arg (subcommand) not found"}"
-	local -r subcommand=$1
+	ensureArg "$*" main 1 "Subcommand"
 
+	local -r subcommand=$1
 	case "$subcommand" in
 	install)
-		: "${2:?"Error: Second arg (package) not found"}"
+		ensureArg "$*" main 2 "Package name"
+
 		local -r package="$2"
 
 		source "$BM_SRC/packages/common.sh"
 		do_install "$package"
 		;;
 	uninstall)
-		: "${2:?"Error: main: uninstall: Second arg (package) not found"}"
-		local -r package="$2"
+		ensureArg "$*" main 2 "Package name"
 
+		local -r package="$2"
 		rm "$BM_DATA/bin/$package"
+		;;
+	show)
+		ensureArg "$*" main 2 "Package name"
+		pkg="$2"
+
+		name="?"
+		version="?"
+		integrity_check="?"
+		identity_check="?"
+		source "$BM_SRC/packages/$pkg/package.sh"
+		echo "name: $name"
+		echo "  version: $version"
+		echo "  integrity: $integrity_check"
+		echo "  identity: $identity_check"
 		;;
 	list)
 		local -a pkgs=()
 		for dir in "$BM_SRC"/packages/*/; do
-			# dir="${dir##*/}"
-			dir="$(basename "$dir")"
+			dir="${dir::-1}"
+			dir="${dir##*/}"
 			pkgs+=("$dir")
 		done
 
@@ -58,9 +72,6 @@ main() {
 			:
 		done
 		;;
-	list2)
-		ls "$XDG_DATA_HOME"/bm/bin | cat
-		;;
 	*)
 		log_error "No matching subcommand found. Exiting"
 		show_help
@@ -70,12 +81,12 @@ main() {
 }
 
 do_install() {
-	: "${1:?"Internal Error: do_install: First arg (package) not found"}"
+	ensureArg "$@" main 2 "Package name"
+
 	local -r package="$1"
 
 	# test if already installed
-	# improve heuristic (maybe have list of text file)
-	[[ -e $BM_DATA/bin/$package ]] && {
+	db_exists "$package" && {
 		log_info "Info: do_install: Package '$package' already installed"
 		exit
 	}
@@ -83,7 +94,7 @@ do_install() {
 	# install
 	log_info "Installing $1"
 
-	pushd "$(mktemp -d)" &>/dev/null
+	pushd "$(mktemp -d)" &>/dev/null || die "pushd failed"
 
 	debug "doInstall: tempFolder: $PWD"
 	debug "doInstall: \$1: $package"
@@ -94,7 +105,7 @@ do_install() {
 	code="$?"
 
 	unset -f pkg_install
-	popd &>/dev/null
+	popd &>/dev/null || die "popd failed"
 }
 
 main "$@"
