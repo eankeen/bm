@@ -31,27 +31,6 @@ ensureArg() {
 	local index="$3"
 
 	if [[ -z ${originalArgs[index-1]} ]]; then
-		log_error "fn $2(arg $3): $4 not found. Exiting"
-		exit 1
+		die "fn $2(arg $3): $4 not found. Exiting"
 	fi
-}
-
-show_help() {
-	cat <<-EOF
-	Usage:
-	    bm [subcommand] [...args]
-
-	Commands:
-	    install
-	        Installs and sources a file
-	    list
-	        lists all the available packages (with varing functionality)
-	    source
-	        Sources the aggregated (contatonated) package-specified source fragments
-
-	Examples:
-	    bm install kubectl
-	    bm remove kubectl
-	    bm source
-	EOF
 }

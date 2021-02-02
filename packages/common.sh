@@ -34,7 +34,7 @@ bm_extract() {
 
 	case "$1" in
 	*.zip)
-		unzip "$1" || bm_die "Extraction (zip) failed" ;;
+		unzip "$1" || bm_die "Extraction (unzip) failed" ;;
 	*)
 		tar xaf "$1" || bm_die "Extraction (tar) failed" ;;
 	esac
