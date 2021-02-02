@@ -4,12 +4,9 @@ do_install() {
 	ensureArg "$@" do_install 1 "Package name"
 	local -r pkg="$1"
 
-	source "$BM_SRC/packages/common.sh"
-
-
-	# test if already installed
+	# if already installed, exiting
 	db_exists "$pkg" && {
-		log_info "Info: do_install: Package '$pkg' already installed"
+		log_info "Info: do_install: Package '$pkg' already installed. Exiting"
 		exit
 	}
 
@@ -17,24 +14,28 @@ do_install() {
 	log_info "Installing $1"
 
 	pushd "$(mktemp -d)" &>/dev/null || die "pushd failed"
-
 	debug "doInstall: tempFolder: $PWD"
-	debug "doInstall: \$1: $pkg"
 
+	source "$BM_SRC/packages/common.sh"
 	source "$BM_SRC/packages/$pkg/package.sh"
 
 	pkg_install
 	code="$?"
+	[[ $code -eq 0 ]] && {
+		db_add "$pkg"
+	}
 
 	unset -f pkg_install
 	popd &>/dev/null || die "popd failed"
 }
 
+## TODO: remove completely
 do_uninstall() {
 	ensureArg "$*" do_uninstall 1 "Package name"
 	local -r pkg="$1"
 
 	rm "$BM_DATA/bin/$pkg"
+	db_remove "$pkg"
 }
 
 do_show() {
@@ -54,6 +55,7 @@ do_show() {
 
 do_list() {
 	local -a pkgs=()
+	# iterate over packages listed in db.txt
 	for dir in "$BM_SRC"/packages/*/; do
 		dir="${dir::-1}"
 		dir="${dir##*/}"
@@ -72,6 +74,10 @@ do_list() {
 		echo "  identity: $identity_check"
 		:
 	done
+}
+
+do_reshim() {
+	log_error "Not implemented"
 }
 
 do_any() {

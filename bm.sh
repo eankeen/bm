@@ -43,6 +43,9 @@ main() {
 	list)
 		do_list
 		;;
+	reshim)
+		do_reshim
+		;;
 	*)
 		do_any
 		;;

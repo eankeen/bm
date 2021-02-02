@@ -5,17 +5,25 @@
 _bm_install() {
 	local cur="${COMP_WORDS[COMP_CWORD]}"
 
+	local -r BM_DATA="${BM_DATA:-"${XDG_DATA_HOME:-$HOME/.local/share}/bm"}"
+
 	local -a dirs=()
-	for dir in "$BM_SRC/packages"/*; do
+	while IFS= read -r dir; do
+		[[ -z $dir ]] && continue
+
 		dir="$(basename "$dir")"
 		dirs+=("${dir/--//}")
-	done
+	done < "$BM_DATA/db.txt"
 
 	# shellcheck disable=SC2207
 	COMPREPLY=($(IFS=' ' compgen -W "${dirs[*]}" -- "$cur"))
 }
 
 _bm_uninstall() {
+	_bm_install
+}
+
+_bm_show() {
 	_bm_install
 }
 
@@ -42,7 +50,7 @@ _bm() {
 	if [[ "$i" -eq "$COMP_CWORD" ]]; then
 		local cur="${COMP_WORDS[COMP_CWORD]}"
 		# shellcheck disable=SC2207
-		COMPREPLY=($(compgen -W "install uninstall list --help" -- "$cur"))
+		COMPREPLY=($(compgen -W "install uninstall show list reshim --help" -- "$cur"))
 		return
 	fi
 
@@ -52,7 +60,11 @@ _bm() {
 			_bm_install ;;
 		uninstall)
 			_bm_uninstall ;;
+		show)
+			_bm_show ;;
 		list)
+			COMPREPLY=() ;;
+		reshim)
 			COMPREPLY=() ;;
 		*)
 			;;
